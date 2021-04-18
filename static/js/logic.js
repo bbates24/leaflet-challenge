@@ -1,11 +1,11 @@
-let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson"
+let earthquake_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojson"
 console.log(earthquake_url)
 
 
 // Perform a GET request to the query URL
 d3.json(earthquake_url, function(data) {
     // Once we get a response, send the data.features object to the createFeatures function
-    createFeatures(data.features);
+    createFeatures(data);
     // //function(response) {
     // //L.geoJson(response, {
     //     pointToLayer: function(feature, latlng) {
@@ -19,7 +19,13 @@ d3.json(earthquake_url, function(data) {
     // }
 
   });
-  
+  function circleColor(depth){
+    if (depth>50) return "#ff0000";
+    else return "#008000";
+
+  }
+
+
   function createFeatures(earthquakeData) {
   
     // Define a function we want to run once for each feature in the features array
@@ -32,7 +38,16 @@ d3.json(earthquake_url, function(data) {
     // Create a GeoJSON layer containing the features array on the earthquakeData object
     // Run the onEachFeature function once for each piece of data in the array
     var earthquakes = L.geoJSON(earthquakeData, {
-      onEachFeature: onEachFeature
+      onEachFeature: onEachFeature,
+      pointToLayer: function(feature, latlng) {
+            return new L.CircleMarker(latlng, {
+            radius:(+feature.properties.mag*4),
+            fillColor:circleColor(+feature.geometry.coordinates[2]),
+            color:"black",
+            opacity:.2,
+            fillOpacity:.75
+         })}
+         
     });
   
     // Sending our earthquakes layer to the createMap function
